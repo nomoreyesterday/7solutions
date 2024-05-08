@@ -1,8 +1,9 @@
 "use client"
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { LayoutList } from '@/components/ui/layoutList';
 import { LayoutColumn } from '@/components/ui/layoutColumn';
+import Link from 'next/link';
 
 interface Item {
   type: 'Fruit' | 'Vegetable';
@@ -48,8 +49,13 @@ const TodoList = () => {
   };
   
   return (
-    <main className='flex items-center justify-center p-6'>
-      <div className="w-[1200px] p-6">
+    <main className='relative flex items-center justify-center py-6 px-20'>
+      <Link href="/">
+        <div className='absolute top-8 right-8 w-16 h-12 rounded-md bg-transparent bg-white hover:bg-[#f6f8fa] active:bg-[#eff1f3] shadow-md overflow-hidden flex items-center justify-center gap-x-2 duration-100 border-[1px] border-solid border-gray-200'>
+          Back
+        </div>
+      </Link>
+      <div className="min-[800px] w-[1200px] p-6">
         <div className='grid grid-cols-3 gap-8'>
           <LayoutList>
               {listItems.map((item, index) => (
