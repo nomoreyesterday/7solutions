@@ -1,5 +1,5 @@
 "use client"
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { LayoutList } from '@/components/ui/layoutList';
 import { LayoutColumn } from '@/components/ui/layoutColumn';
@@ -27,43 +27,61 @@ const TodoList = () => {
   );
 
   const [tempList, setTempList] = useState<Item[]>([]);
-  
-  const handleMove = (item: Item) => {
-    setTempList((prevTemp) => prevTemp ? [...prevTemp, item] : [item]);
-    setListItems((prevList) => prevList.filter((i) => i !== item));
-    
-    setTimeout(() => {
-      setTempList((prevTemp) => prevTemp ? prevTemp.filter((i) => i !== item) : []);
-      setListItems((prevList) => {
-        if (!prevList.includes(item)) {
-          return [...prevList, item];
-        }
-        return prevList;
-      });
-    }, 5000);
+  const timeoutIdsRef = useRef<Array<number | NodeJS.Timeout>>([]);
+
+  const startTimeout = (callback: () => void, delay: number) => {
+    const timeoutId = setTimeout(() => {
+      callback();
+      clearTimeout(timeoutId);
+      timeoutIdsRef.current = timeoutIdsRef.current.filter(id => id !== timeoutId);
+    }, delay);
+    timeoutIdsRef.current = [...timeoutIdsRef.current, timeoutId];
   };
   
-  const handleMoveBack = (item: Item) => {
-    setTempList((prevTemp) => prevTemp ? prevTemp.filter((i) => i !== item) : []);
+  const cancelTimeout = (item: Item) => {
+    const index = tempList.findIndex(i => i === item)
+    const timeoutId = timeoutIdsRef.current[index];
+    if (timeoutId) {
+      clearTimeout(timeoutId as NodeJS.Timeout);
+      timeoutIdsRef.current = timeoutIdsRef.current.filter(id => id !== timeoutId);
+    }
+  };
+
+  const afterTimeout = (item: Item) => {  
+    setTempList(prevTemp => prevTemp.filter(i => i !== item));
+    setListItems((prevList) => prevList.includes(item) ? prevList : [...prevList, item]);
+  };
+
+  const handleMove = (item: Item) => {
+    setTempList((prevTemp) => [...prevTemp, item]);
+    setListItems((prevList) => prevList.filter((i) => i !== item));
+    startTimeout(() => afterTimeout(item), 5000);
+  };
+  
+   const handleMoveBack = (item: Item) => {
+    cancelTimeout(item);
+    setTempList((prevTemp) => prevTemp.filter((i) => i !== item));
     setListItems((prevList) => [...prevList, item]);
   };
-  
+
   return (
-    <main className='relative flex items-center justify-center py-6 px-20'>
+    <main className='relative min-w-[360px] w-full flex items-center justify-center py-8 sm:py-10 overflow-x-hidden'>
+
       <Link href="/">
-        <div className='absolute top-8 right-8 w-16 h-12 rounded-md bg-transparent bg-white hover:bg-[#f6f8fa] active:bg-[#eff1f3] shadow-md overflow-hidden flex items-center justify-center gap-x-2 duration-100 border-[1px] border-solid border-gray-200'>
+        <div className='absolute top-4 left-6 w-16 h-8 sm:h-10 rounded-md bg-transparent bg-white hover:bg-[#f6f8fa] active:bg-[#eff1f3] shadow-md overflow-hidden flex items-center justify-center gap-x-2 duration-100 border-[1px] border-solid border-gray-200 text-[16px] sm:text-[18px]'>
           Back
         </div>
       </Link>
-      <div className="min-[800px] w-[1200px] p-6">
-        <div className='grid grid-cols-3 gap-8'>
+
+      <div className="w-full sm:w-[1200px] p-6">
+        <div className='grid grid-cols-3 gap-4 sm:gap-8'>
           <LayoutList>
-              {listItems.map((item, index) => (
+              {listItems?.map((item, index) => (
                 <Button
                   key={index}
-                  onClick={() => handleMove(item as Item)}
+                  onClick={() => handleMove(item)}
                 >
-                  <p className='text-[24px] font-[500] flex items-center justify-center'>{item.name}</p>
+                  <p className='text-[14px] sm:text-[24px] font-[500] flex items-center justify-center'>{item.name}</p>
                 </Button>
               ))}
           </LayoutList>
@@ -74,7 +92,7 @@ const TodoList = () => {
                 key={index}
                 onClick={() => handleMoveBack(item)}
               >
-                <p className='text-[24px] font-[500] flex items-center justify-center'>{item.name}</p>
+                <p className='text-[14px] sm:text-[24px] font-[500] flex items-center justify-center'>{item.name}</p>
               </Button>
             ))}
           </ LayoutColumn>
@@ -85,12 +103,13 @@ const TodoList = () => {
                 key={index}
                 onClick={() => handleMoveBack(item)}
               >
-                <p className='text-[24px] font-[500] flex items-center justify-center'>{item.name}</p>
+                <p className='text-[14px] sm:text-[24px] font-[500] flex items-center justify-center'>{item.name}</p>
               </Button>
             ))}
           </ LayoutColumn>
         </div>
       </div>
+
     </main>
   );
 };
