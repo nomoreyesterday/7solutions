@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { LayoutList } from '@/components/ui/layoutList';
 import { LayoutColumn } from '@/components/ui/layoutColumn';
 import Link from 'next/link';
+import CountdownTimer from '@/components/ui/countdown';
 
 interface Item {
   type: 'Fruit' | 'Vegetable';
@@ -46,6 +47,26 @@ const TodoList = () => {
       timeoutIdsRef.current = timeoutIdsRef.current.filter(id => id !== timeoutId);
     }
   };
+
+  // const [timeoutIds, setTimeoutIds] = useState<Array<number | NodeJS.Timeout>>([]);
+  
+  // const startTimeout = (callback: () => void, delay: number) => {
+  //   const timeoutId = setTimeout(() => {
+  //     callback();
+  //     clearTimeout(timeoutId);
+  //     setTimeoutIds(prevIds => prevIds.filter(id => id !== timeoutId));
+  //   }, delay);
+  //   setTimeoutIds(prevIds => [...prevIds, timeoutId]);
+  // };
+  
+  // const cancelTimeout = (item: Item) => {
+  //   const index = tempList.findIndex(i => i === item)
+  //   const timeoutId = timeoutIds[index];
+  //   if (timeoutId) {
+  //     clearTimeout(timeoutId as NodeJS.Timeout);
+  //     setTimeoutIds(prevIds => prevIds.filter(id => id !== timeoutId));
+  //   }
+  // };
 
   const afterTimeout = (item: Item) => {  
     setTempList(prevTemp => prevTemp.filter(i => i !== item));
@@ -93,6 +114,7 @@ const TodoList = () => {
                 onClick={() => handleMoveBack(item)}
               >
                 <p className='text-[14px] sm:text-[24px] font-[500] flex items-center justify-center'>{item.name}</p>
+                {/* <CountdownTimer duration={5} item={index.toString()}/> */}
               </Button>
             ))}
           </ LayoutColumn>
@@ -104,6 +126,7 @@ const TodoList = () => {
                 onClick={() => handleMoveBack(item)}
               >
                 <p className='text-[14px] sm:text-[24px] font-[500] flex items-center justify-center'>{item.name}</p>
+                {/* <CountdownTimer duration={5} item={index.toString()}/> */}
               </Button>
             ))}
           </ LayoutColumn>
